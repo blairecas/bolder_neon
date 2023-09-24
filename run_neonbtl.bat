@@ -1,0 +1,1 @@
+start ..\..\neon\neonbtl /autostart /disk0:C:\Projects\uknc\00_code\bolder_neon\neon.dsk /boot1

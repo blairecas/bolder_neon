@@ -335,6 +335,7 @@ KeyboardProc:
 	clr	R0
 	provec	#v.kbd				; protect keyboard vector
 10$:	waitint	#m.kbd				; wait keyboard inverrupt
+	inc	KeyCurrent
 	mov	#120, @#KbdCsr			; ???
 	mov	#KeysBuffer, R4
 	mov	#8., R5
@@ -501,6 +502,7 @@ AmoebaCanGrow:		.word	0
 AmoebaGrowing:		.word	0
 
 CurrentSound:		.word	0
+KeyCurrent:		.word	0
 
 KeysBegin:
 KeyAP2:		.word	0, 00., ^B10000000

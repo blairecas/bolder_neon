@@ -450,15 +450,63 @@ PrintDiamonds:
 
 ; play sound (R0 - #)
 PlaySound:
-	return
+	tst	NoSound
+	bne	99$
+	asl	R0
+	beq	99$
+	mov	SoundTable(R0), R0
+10$:	mov	(R0)+, R3
+	beq	99$
+	asr	 R3
+	movb	#377, @#161032
+	sob	R3, .
+	mov	(R0)+, R3
+	beq	99$
+	asr	R3
+	movb	#000, @#161032
+	sob	R3, .
+	br	10$
+99$:	return
 
 ; playing note (R0 - #)
 PlayNote:
+	return
+	asl	R0
+	mov	NotPad(R0), R0
+	asr	R0				; UKNC playing them from timers, so adjust tone
+	; note timer
+	clr	VsyCount
+	; beeper on-off cycle
+10$:	mov	R0, 20$+2			; why not use registers for cycles?
+	mov	R0, 30$+2			; .. don't know %)
+	movb	#377, @#161032
+20$:	dec	#000000
+	bne	20$
+	movb	#000, @#161032
+30$:	dec	#000000
+	bne	30$
+40$:	cmp	VsyCount, #2
+	blos	10$
+	; pause timer
+	clr	VsyCount
+50$:	cmp	VsyCount, #2
+	blos	50$
 	return
 
 ; plays music (just one music is here)
 PlayMusic:
 	return
+	tst	NoSound
+	bne	99$
+	clr	KeyCurrent
+	mov	#Music001, R5
+10$:	movb	(R5)+, R0
+	beq	99$
+	call	PlayNote
+	tst	KeyCurrent
+	bne	99$
+	br	10$
+99$:	return
 
 
 	.radix 10
