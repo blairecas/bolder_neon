@@ -66,6 +66,58 @@ DrawChanged:
 99$:	return
 
 
+; draws all 
+DrawAll:
+	mov	#VFieldAddr, R4
+	call	GetFieldAddr
+	mov	#ScrWid-4, R2			; vaddr vertical addition
+	mov	#14., 103$+2			; screen DY is 14. tiles
+10$:	mov	R4, R5				; current tile line vaddr
+	mov	#16., R3			; screen DX is 16. tiles
+20$:	mov	(R0), R1
+	bic	#^B1111111111000000, R1		; 64. tiles maximum
+	; get tile #
+	asl	R1
+	mov	ObjectBaseTiles(R1), R1
+	beq	28$
+	; if it's colored
+	cmp	R1, #COLORED_ENDS
+	bhi	26$
+	add	LevelColor, R1
+	; if it's animated
+26$:	cmp	R1, #ANIMATED_BEGIN
+	blo	28$
+	bic	#^B11, R1
+	bis	AniCounter, R1
+28$:	; draw in CPU
+	swab	R1				; * 64 (tile size)
+	asr	R1
+	asr	R1
+	add	#TilesCpuData, R1		; R1 = tile data addr
+	.rept	16.
+	mov	(R1)+, (R5)+
+	mov	(R1)+, (R5)+
+	add	R2, R5
+	.endr
+	sub	#ScrWid*16., R5			; rewind vaddr
+	; advance vaddr
+	add	#4, R5
+	; advance field addr
+	inc	R0
+	inc	R0
+	dec	R3
+	beq	40$
+	jmp	20$
+40$:	; 
+	add	#80.-32., R0			; advance field addr to next line
+	add	#ScrWid*16., R4			; advance R4 - vaddr to next line
+	; loop by Y
+103$:	dec	#000000
+	beq	99$
+	jmp	10$
+99$:	return
+
+
 ; draw all without animations
 RedrawAll:
 	call	GetFieldAddr			; R0 <- addr in field
@@ -137,6 +189,37 @@ UpdateFieldXY:
 	mov	R2, NewFieldY
 50$:	call	CorrectNewFieldXY
 	return
+
+; move window coords close to center rockford by 1
+ScrollToRockford:
+	mov	FieldX, R1
+	add	#7., R1
+	cmp	RockfordX, R1
+	beq	50$
+	blt	10$
+	inc	FieldX
+	cmp	FieldX, #24.
+	ble	50$
+	mov	#24., FieldX
+	br	50$
+10$:	dec	FieldX
+	bge	50$
+	clr	FieldX
+50$:	mov	FieldY, R2
+	add	#6., R2
+	cmp	RockfordY, R2
+	beq	90$
+	blt	60$
+	inc	FieldY
+	cmp	FieldY, #8.
+	ble	90$
+	mov	#8., FieldY
+	br	90$
+60$:	dec	FieldY
+	bge	90$
+	clr	FieldY
+90$:	return
+
 
 ; center rockford
 CenterRockford:
