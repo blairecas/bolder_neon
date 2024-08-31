@@ -164,13 +164,15 @@ MainLevel:
 	call	ProcessField
 	mov	CurrentSound, R0
 	call	PlaySound
-;	call	UpdateFieldXY
-;	call	ScrollWindow
-;	tst	WasScrolled
-;	bne	10$
-;	call	DrawChanged
-	call	ScrollToRockford
-	call	DrawAll
+	; old scroll
+	call	UpdateFieldXY
+	call	ScrollWindow
+	tst	WasScrolled
+	bne	10$
+	call	DrawChanged
+; new scroll
+; call	ScrollToRockford
+; call	DrawAll
 10$:	; if we need to update diamonds score
 	tst	DiamondsUpdate
 	beq	20$
