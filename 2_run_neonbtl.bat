@@ -1,0 +1,1 @@
+start ..\..\neon\neonbtl /autostart /disk0:..\bolder_neon\release\bolde3.dsk /boot1
